@@ -46,6 +46,7 @@
 		<property name="annotatedClasses">
 			<list>
 				<value>com.mobileweb.model.User</value>
+				<value>com.mobileweb.model.SessionUser</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">

@@ -58,24 +58,7 @@
 			jQuery(window).resize(resizeColorBox);
 			window.addEventListener("orientationchange", resizeColorBox, false);				
 			
-			// home page slider 
-			$.supersized({
-				// Functionality
-				slide_interval          :   3000,		// Length between transitions
-				transition              :   1, 			// 0-None, 1-Fade, 2-Slide Top, 3-Slide Right, 4-Slide Bottom, 5-Slide Left, 6-Carousel Right, 7-Carousel Left
-				transition_speed		:	700,		// Speed of transition							   
-				// Components
-				slide_links				:	'blank',	// Individual links for each slide (Options: false, 'num', 'name', 'blank')
-				slides 					:  	[			// Slideshow Images
-											{image : 'http://www.himsofts.com/billistic/img/home-hero-1-1920x1140.jpg', title : '<div class="slide-caption-header" >Take Financial Control</div><div></div><div class="slide-caption-text">Organizing bills becomes automatic and effortless.</div>', thumb : 'http://www.himsofts.com/billistic/img/home-hero-1-1920x1140.jpg', url : ''},
-											{image : 'http://www.himsofts.com/billistic/img/home-hero-2-1920x1140.jpg', title : '<div class="slide-caption-header" >Save Time and Money</div><div></div><div class="slide-caption-text">Manage and pay bills with just a few clicks.</div>', thumb : 'http://www.himsofts.com/billistic/img/home-hero-2-1920x1140.jpg', url : ''},  
-											{image : 'http://www.himsofts.com/billistic/img/home-hero-3-1920x1140.jpg', title : '<div class="slide-caption-header" >Set Billing Reminders</div><div></div><div class="slide-caption-text">Eliminate late fees - save money, improve credit score</div>', thumb : 'http://www.himsofts.com/billistic/img/home-hero-3-1920x1140.jpg', url : ''},
-											{image : 'http://www.himsofts.com/billistic/img/home-hero-4-1920x1140.jpg', title : '<div class="slide-caption-header" >Store Bills Indefinitely</div><div></div><div class="slide-caption-text">Instant access to any bill - go paperless, with confidence</div>', thumb : 'http://www.himsofts.com/billistic/img/home-hero-4-1920x1140.jpg', url : ''},
-											{image : 'http://www.himsofts.com/billistic/img/home-hero-5-1920x1140.jpg', title : '<div class="slide-caption-header" >Rest Assured</div><div></div><div class="slide-caption-text">Data & bills are secured by 256-bit AES encryption</div>', thumb : 'http://www.himsofts.com/billistic/img/home-hero-5-1920x1140.jpg', url : ''},
-											{image : 'http://www.himsofts.com/billistic/img/home-hero-6-1920x1140.jpg', title : '<div class="slide-caption-header" >Be Eco-Friendly</div><div></div><div class="slide-caption-text">No paper, no stamps, no effort, no kidding!</div>', thumb : 'http://www.himsofts.com/billistic/img/home-hero-6-1920x1140.jpg', url : ''},
-											{image : 'http://www.himsofts.com/billistic/img/home-hero-7-1920x1140.jpg', title : '<div class="slide-caption-header" >Go Billistic!</div><div></div><div class="slide-caption-text">Set up an account now.  Its fast, easy and free</div>', thumb : 'http://www.himsofts.com/billistic/img/home-hero-7-1920x1140.jpg', url : ''}
-											]
-			});	
+			
 			// make the slider swipe able 
 			$(".swipe-target").swipe( {
 				//Generic swipe handler for all directions
@@ -105,74 +88,21 @@
 	<body>
 		<div id="page">
 			<div class="header">
-				<a href="#menu" id="menuIcon"></a>
-				<div class="logo center">
-					<a href="/billistic"><img src="/assets/img/header_logo_bw.png" alt="Billistic" /></a>
-				</div>
 				<div class="menu-button pull-right">
 					<ul>
+					 #if ($isLogin == true)
+						<li><a href="login" class="login-button hidden-xs">Welcome $userName </a></li>
+						<li><a href="logout" class="sign-up-button hidden-xs">Log out</a></li>						
+    				#else
 						<li><a href="login" class="login-button hidden-xs">log in</a></li>
 						<li><a href="signup" class="sign-up-button hidden-xs">Sign up</a></li>
+    				#end
 					</ul>
 				</div>
 			</div>
 			<div class="content">
-				<div class="swipe-target"></div><!-- target for swipe -->
-				<!-- home slider start here  -->	
-				<ul id="homeSlider"></ul>
-				<div class="slide-caption" id="slidecaption"></div>	
-				<div class="hero-buttons">
-				   <a class='youtube' href="http://www.youtube.com/embed/VOJyrQa_WR4?rel=0&amp;wmode=transparent"><button class="login-button show-video" type="button">The Video</button></a>
-				   <a href="signup" ><button class="sign-up-button" type="button">Sign Up</button></a>
-					<br/>
-				</div>
-				<!--Arrow Navigation-->
-				<!--<a id="prevslide" class="load-item"></a>
-				<a id="nextslide" class="load-item"></a>-->
-				
-				<!--Time Bar-->
-				<!--<div id="progress-back" class="load-item">
-					<div id="progress-bar"></div>
-				</div>-->
-				
-				<!--Control Bar-->
-				<div id="controls-wrapper" class="load-item">
-					<div id="controls">			
-						<!--Navigation-->
-						<ul id="slide-list"></ul>
-					</div>
-				</div>
+				This is Index page
 			</div>
-			<!-- Right side menu bar start here-->
-			<nav id="menu">
-				<ul>
-					<li>
-						<a href="#menu" id="menuArrow">
-							<img src="/assets/img/arrow-89-xl.png" alt="Home" height="" width="">
-							<i></i>
-						</a>
-					</li>
-					<li>
-						<a href="login"><img src="/assets/img/login-xxl.png" alt="Login" height="24" width="24"><span>Login</span></a>
-					</li>					
-					<li>
-						<a href="signup"><img src="/assets/img/edit.png" alt="Sign Up" height="24" width="24"><span>Sign Up</span></a>
-					</li>					
-					<li>
-						<a href="services.html"><img src="/assets/img/note-2-xxl.png" alt="Service Plan" height="24" width="24"><span>Service Plan</span></a>
-					</li>
-					<li>
-						<a href="legal.html"><img src="/assets/img/Image25.png" alt="Legal Policy" height="24" width="24"><span>Legal Policy</span></a>
-					</li>					
-					<li>
-						<a href="faq.html"><img src="/assets/img/question-mark-xxl.png" alt="Help Center" height="24" width="24"><span>Help Center</span></a>
-					</li>	
-					<li>
-						<a href="about-us.html"><img src="/assets/img/logo-icon.png" alt="Help Center" height="24" width="24"><span>About Us</span></a>
-					</li>
-				</ul>
-			</nav>
-			<!-- Right side menu bar end here-->			
-		</div>
+			
 	</body>
 #end

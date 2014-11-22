@@ -149,8 +149,8 @@
 			<version>${jaxrs.api.version}</version>
 		</dependency>
 
-		<!-- Spring   -->
-		
+		<!-- Spring -->
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
@@ -267,7 +267,7 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
 		</dependency>
-		
+
 		<!-- Velocity dependencies -->
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
@@ -279,14 +279,20 @@
 			<artifactId>velocity-tools</artifactId>
 			<version>2.0</version>
 		</dependency>
-		
-	<dependency>
-  <groupId>org.testng</groupId>
-  <artifactId>testng</artifactId>
-  <version>6.1.1</version>
-  <scope>test</scope>
-</dependency>
-	
+
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
+
 
 	</dependencies>
 	<!-- modules> <module>?</module> </modules -->
