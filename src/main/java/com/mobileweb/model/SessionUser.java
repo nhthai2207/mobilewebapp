@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-@Table(name = "SessionUser", catalog = "billisticUI")
+@Table(name = "SessionUser")
 public class SessionUser implements java.io.Serializable {
 
 	@JsonProperty("SESSION_ID")

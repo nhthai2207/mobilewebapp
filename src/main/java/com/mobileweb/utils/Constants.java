@@ -11,6 +11,7 @@ public class Constants {
 	public static final String AVERAGE = "average";
 	public static final String MIN = "min";
 	public static final String MAX = "max";
+	public static final String confirmRegistUrl = "http://localhost:8080/user/confirmregist?key=";
 
 	public static enum ErrorCode {
 		NOTFOUND_404(404, "This reource is not exist"), 

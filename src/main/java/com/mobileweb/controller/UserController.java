@@ -26,6 +26,7 @@ import com.mobileweb.dao.impl.UserDaoImpl;
 import com.mobileweb.model.SessionUser;
 import com.mobileweb.model.User;
 import com.mobileweb.utils.CommonUtils;
+import com.mobileweb.utils.Constants;
 import com.mobileweb.utils.SecurityUtils;
 
 /**
@@ -42,6 +43,23 @@ public class UserController {
 
 	@RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	public String index(@PathVariable String name, ModelMap model, @CookieValue(value = "ssId", defaultValue = "") String sessionId) {
+		if (CommonUtils.isEmptyString(sessionId)) {
+			model.addAttribute("isLogin", false);
+		} else {
+			SessionUser sessionUser = sessionDao.find(sessionId);
+			if (sessionUser != null) {
+				model.addAttribute("isLogin", true);
+				model.addAttribute("userName", sessionUser.getUserName());
+			} else {
+				model.addAttribute("isLogin", false);
+			}
+
+		}
+		return name;
+	}
+
+	@RequestMapping(value = "/updateprofile", method = RequestMethod.GET)
+	public String updateProfile(ModelMap model, @CookieValue(value = "ssId", defaultValue = "") String sessionId) {
 		logger.debug("Method greetPath");
 		System.out.println("Sessionid " + sessionId);
 		if (CommonUtils.isEmptyString(sessionId)) {
@@ -49,24 +67,74 @@ public class UserController {
 		} else {
 			model.addAttribute("isLogin", true);
 			SessionUser sessionUser = sessionDao.find(sessionId);
+			Integer userId = sessionUser.getUserId();
+			User user = userDao.find(userId);
 			model.addAttribute("userName", sessionUser.getUserName());
+			model.addAttribute("user", user);
 		}
-		return name;
+		return "updateprofile";
 	}
 
 	@RequestMapping(value = "/signupok", method = RequestMethod.POST)
-	// @ResponseBody
 	public String signUpOk(WebRequest webRequest, Model model) {
 		try {
 			Map<String, String[]> parameters = webRequest.getParameterMap();
 			User user = new User(parameters);
 			userDao.add(user);
+			CommonUtils.sendMail(user.getUsername(), user.getEmail(), Constants.confirmRegistUrl + user.getConfirmKey());
 			model.addAttribute("msg", "SignUp OK");
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("msg", "It's problem when signup");
 		}
 		return "signUpOk";
+	}
+
+	@RequestMapping(value = "/confirmregist", method = RequestMethod.GET)
+	public String confirmRegist(@RequestParam(value = "key", required = true) String key, WebRequest webRequest, Model model) {
+		try {
+			User user = userDao.getUserByRegistKey(key);
+			if (user != null) {
+				logger.info("User is not null");
+				user.setIsActive(true);
+				userDao.update(user);
+			}else {
+				logger.info("User is null");
+			}
+			
+			model.addAttribute("msg", "Valid Key - you've finished your registration!");
+		} catch (Exception e) {
+			logger.info("============> Exception ");
+			e.printStackTrace();
+			model.addAttribute("msg", "It's problem when validate key");
+		}
+		return "confirmregist";
+	}
+
+	@RequestMapping(value = "/updateprofileok", method = RequestMethod.POST)
+	public String updateProfileOk(WebRequest webRequest, Model model, @CookieValue(value = "ssId", defaultValue = "") String sessionId) {
+		try {
+			if (CommonUtils.isEmptyString(sessionId)) {
+				model.addAttribute("isLogin", false);
+			} else {
+				SessionUser sessionUser = sessionDao.find(sessionId);
+				if (sessionUser != null) {
+					Map<String, String[]> parameters = webRequest.getParameterMap();
+					User user = new User(parameters);
+					user.setUserId(sessionUser.getUserId());
+					userDao.update(user);
+					model.addAttribute("msg", "Update profile OK for user " + sessionUser.getUserName());
+				} else {
+					model.addAttribute("isLogin", false);
+				}
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("msg", "It's problem when signup");
+		}
+		return "updateProfileOk";
 	}
 
 	@RequestMapping(value = "/loginOk", method = RequestMethod.POST)
@@ -78,11 +146,6 @@ public class UserController {
 			String sessionId = SecurityUtils.getMD5String(clientIp + "_" + currentTime);
 			SessionUser session = new SessionUser(sessionId, 1, username, Calendar.getInstance().getTime());
 			sessionDao.add(session);
-			JSONObject data = new JSONObject();
-			data.put("username", username);
-			data.put("password", password);
-			// String post = APIClient.post("subscriber/login",
-			// data.toString());
 			String post = "{status: success}";
 			JSONObject ret = new JSONObject(post);
 			if (ret.getString("status").equals("success")) {
