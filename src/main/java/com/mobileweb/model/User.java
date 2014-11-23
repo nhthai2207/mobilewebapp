@@ -24,7 +24,7 @@ import com.mobileweb.utils.SecurityUtils;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
-@Table(name = "USER", catalog = "MobileWeb")
+@Table(name = "USER")
 public class User implements java.io.Serializable {
 
 	private Integer userId;
