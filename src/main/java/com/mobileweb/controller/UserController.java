@@ -9,8 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.FormParam;
 
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -26,7 +27,6 @@ import com.mobileweb.dao.impl.UserDaoImpl;
 import com.mobileweb.model.SessionUser;
 import com.mobileweb.model.User;
 import com.mobileweb.utils.CommonUtils;
-import com.mobileweb.utils.Constants;
 import com.mobileweb.utils.SecurityUtils;
 
 /**
@@ -40,9 +40,12 @@ public class UserController {
 	UserDaoImpl userDao;
 	@Autowired
 	SessionDaoImpl sessionDao;
-
+	@Value("${confirmRegistUrl}")
+	private String confirmRegistUrl;
+	
 	@RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	public String index(@PathVariable String name, ModelMap model, @CookieValue(value = "ssId", defaultValue = "") String sessionId) {
+		System.out.println("regist url " + confirmRegistUrl);
 		if (CommonUtils.isEmptyString(sessionId)) {
 			model.addAttribute("isLogin", false);
 		} else {
@@ -80,9 +83,19 @@ public class UserController {
 		try {
 			Map<String, String[]> parameters = webRequest.getParameterMap();
 			User user = new User(parameters);
-			userDao.add(user);
-			CommonUtils.sendMail(user.getUsername(), user.getEmail(), Constants.confirmRegistUrl + user.getConfirmKey());
-			model.addAttribute("msg", "SignUp OK");
+			int userExist = userDao.isUserExist(user.getEmail(), user.getUsername());
+			if (userExist == 0) {
+				userDao.add(user);
+				CommonUtils.sendMail(user.getUsername(), user.getEmail(), confirmRegistUrl + user.getConfirmKey());
+				model.addAttribute("msg", "SignUp OK");
+			} else {
+				if (userExist == 1) {
+					model.addAttribute("msg", "This email is already exist, please choose another one!");
+				} else {
+					model.addAttribute("msg", "This username is already exist, please choose another one!");
+				}
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("msg", "It's problem when signup");
@@ -98,10 +111,10 @@ public class UserController {
 				logger.info("User is not null");
 				user.setIsActive(true);
 				userDao.update(user);
-			}else {
+			} else {
 				logger.info("User is null");
 			}
-			
+
 			model.addAttribute("msg", "Valid Key - you've finished your registration!");
 		} catch (Exception e) {
 			logger.info("============> Exception ");
@@ -138,22 +151,22 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/loginOk", method = RequestMethod.POST)
-	// @ResponseBody
 	public String loginOk(@FormParam(value = "username") String username, @FormParam(value = "password") String password, Model model, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			String clientIp = request.getRemoteAddr();
-			String currentTime = Calendar.getInstance().getTime().toString();
-			String sessionId = SecurityUtils.getMD5String(clientIp + "_" + currentTime);
-			SessionUser session = new SessionUser(sessionId, 1, username, Calendar.getInstance().getTime());
-			sessionDao.add(session);
-			String post = "{status: success}";
-			JSONObject ret = new JSONObject(post);
-			if (ret.getString("status").equals("success")) {
+			int login = userDao.isValidLogin(username, password);
+			if (login == 0) {
+				String clientIp = request.getRemoteAddr();
+				String currentTime = Calendar.getInstance().getTime().toString();
+				String sessionId = SecurityUtils.getMD5String(clientIp + "_" + currentTime);
+				SessionUser session = new SessionUser(sessionId, 1, username, Calendar.getInstance().getTime());
+				sessionDao.add(session);
 				model.addAttribute("msg", "Login OK");
-			} else {
+				response.addCookie(new Cookie("ssId", sessionId));
+			} else if (login == 1) {
 				model.addAttribute("msg", "Invalid username or password");
+			} else {
+				model.addAttribute("msg", "This user is already register but still not active. Please check email and active for it");
 			}
-			response.addCookie(new Cookie("ssId", sessionId));
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("msg", "It's problem when signup");

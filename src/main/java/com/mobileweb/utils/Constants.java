@@ -4,15 +4,7 @@ import org.json.JSONObject;
 
 public class Constants {
 	public static final String BASE_URL = "http://ec2-54-69-36-245.us-west-2.compute.amazonaws.com/mobileweb/";
-	
-	public static final String MASTER_SERVICE_PLAN_ID = "masterServicePlanId";
-	public static final String SUBSCRIBER_SIZE = "subscriberSize";
-	public static final String AVERAGE_MONTHLY_INCOME = "AverageMonthlyIncome";
-	public static final String AVERAGE = "average";
-	public static final String MIN = "min";
-	public static final String MAX = "max";
-	public static final String confirmRegistUrl = "http://localhost:8080/user/confirmregist?key=";
-
+		
 	public static enum ErrorCode {
 		NOTFOUND_404(404, "This reource is not exist"), 
 		NOTFOUND_400(400, "Request has not good URI syntax"),
