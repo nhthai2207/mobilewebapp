@@ -11,7 +11,6 @@ import javax.ws.rs.FormParam;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 
+import com.mobileweb.aspects.GlobalConfig;
 import com.mobileweb.dao.impl.SessionDaoImpl;
 import com.mobileweb.dao.impl.UserDaoImpl;
 import com.mobileweb.model.SessionUser;
@@ -39,13 +39,14 @@ public class UserController {
 	@Autowired
 	UserDaoImpl userDao;
 	@Autowired
+	GlobalConfig config;
+
+	@Autowired
 	SessionDaoImpl sessionDao;
-	@Value("${confirmRegistUrl}")
-	private String confirmRegistUrl;
-	
+
 	@RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	public String index(@PathVariable String name, ModelMap model, @CookieValue(value = "ssId", defaultValue = "") String sessionId) {
-		System.out.println("regist url " + confirmRegistUrl);
+		System.out.println("regist url " + config.getConfirmRegistUrl());
 		if (CommonUtils.isEmptyString(sessionId)) {
 			model.addAttribute("isLogin", false);
 		} else {
@@ -67,15 +68,39 @@ public class UserController {
 		System.out.println("Sessionid " + sessionId);
 		if (CommonUtils.isEmptyString(sessionId)) {
 			model.addAttribute("isLogin", false);
+			return "index";
 		} else {
 			model.addAttribute("isLogin", true);
 			SessionUser sessionUser = sessionDao.find(sessionId);
 			Integer userId = sessionUser.getUserId();
+			System.out.println("userId ==> " + userId);
 			User user = userDao.find(userId);
+			System.out.println("userName ==> " + user.getUsername());
 			model.addAttribute("userName", sessionUser.getUserName());
 			model.addAttribute("user", user);
+			return "updateprofile";
 		}
-		return "updateprofile";
+	}
+
+	@RequestMapping(value = "/signup", method = RequestMethod.GET)
+	public String signUp(ModelMap model, @CookieValue(value = "ssId", defaultValue = "") String sessionId) {
+		System.out.println("regist url " + config.getConfirmRegistUrl());
+		if (CommonUtils.isEmptyString(sessionId)) {
+			model.addAttribute("isLogin", false);
+		} else {
+			SessionUser sessionUser = sessionDao.find(sessionId);
+			if (sessionUser != null) {
+				model.addAttribute("isLogin", true);
+				model.addAttribute("userName", sessionUser.getUserName());
+			} else {
+				model.addAttribute("isLogin", false);
+			}
+		}
+		if (config.isProd()) {
+			return "signupprod";
+		} else {
+			return "signup";
+		}
 	}
 
 	@RequestMapping(value = "/signupok", method = RequestMethod.POST)
@@ -86,7 +111,7 @@ public class UserController {
 			int userExist = userDao.isUserExist(user.getEmail(), user.getUsername());
 			if (userExist == 0) {
 				userDao.add(user);
-				CommonUtils.sendMail(user.getUsername(), user.getEmail(), confirmRegistUrl + user.getConfirmKey());
+				CommonUtils.sendMail(user.getUsername(), user.getEmail(), config.getConfirmRegistUrl() + user.getConfirmKey());
 				model.addAttribute("msg", "SignUp OK");
 			} else {
 				if (userExist == 1) {
@@ -153,19 +178,21 @@ public class UserController {
 	@RequestMapping(value = "/loginOk", method = RequestMethod.POST)
 	public String loginOk(@FormParam(value = "username") String username, @FormParam(value = "password") String password, Model model, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			int login = userDao.isValidLogin(username, password);
-			if (login == 0) {
-				String clientIp = request.getRemoteAddr();
-				String currentTime = Calendar.getInstance().getTime().toString();
-				String sessionId = SecurityUtils.getMD5String(clientIp + "_" + currentTime);
-				SessionUser session = new SessionUser(sessionId, 1, username, Calendar.getInstance().getTime());
-				sessionDao.add(session);
-				model.addAttribute("msg", "Login OK");
-				response.addCookie(new Cookie("ssId", sessionId));
-			} else if (login == 1) {
+			User user = userDao.getUserByUserNamePass(username, password);
+			if (user != null) {
+				if (user.getIsActive()) {
+					String clientIp = request.getRemoteAddr();
+					String currentTime = Calendar.getInstance().getTime().toString();
+					String sessionId = SecurityUtils.getMD5String(clientIp + "_" + currentTime);
+					SessionUser session = new SessionUser(sessionId, user.getUserId(), username, Calendar.getInstance().getTime());
+					sessionDao.add(session);
+					model.addAttribute("msg", "Login OK");
+					response.addCookie(new Cookie("ssId", sessionId));
+				} else {
+					model.addAttribute("msg", "This user is already register but still not active. Please check email and active for it");
+				}
+			} else{
 				model.addAttribute("msg", "Invalid username or password");
-			} else {
-				model.addAttribute("msg", "This user is already register but still not active. Please check email and active for it");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -46,7 +46,7 @@ public class UserDaoImpl extends GenericDaoImpl<User, Integer> {
 	}
 
 	// 0: Login Ok, 1: Wrong username or password, 2: Still not active
-	public int isValidLogin(String username, String password) {
+	public User getUserByUserNamePass(String username, String password) {
 		String keys[] = { "userName", "password" };
 		String value[] = { ServiceUtils.addDoubleQuote(username),  ServiceUtils.addDoubleQuote(password)};
 		Operand operand[] = { Operand.EQ, Operand.EQ };
@@ -55,13 +55,9 @@ public class UserDaoImpl extends GenericDaoImpl<User, Integer> {
 		List<User> list = this.list(whereCondition);
 		if (list != null && list.size() > 0) {
 			User user = list.get(0);
-			if(user.getIsActive()){
-				return 0;
-			}else{
-				return 2;
-			}				
+			return user;
 		}
-		return 1;
+		return null;
 	}
 
 }
