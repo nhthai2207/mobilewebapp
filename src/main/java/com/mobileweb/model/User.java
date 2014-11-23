@@ -35,11 +35,11 @@ public class User implements java.io.Serializable {
 	private String username;
 	private String email;
 	private String homeAddress;
-	private Integer phoneNumber;
+	private String phoneNumber;
 	private String password;
 	private String ecLastName;
 	private String ecFirstName;
-	private Integer ecPhoneNumber;
+	private String ecPhoneNumber;
 	private Date createdAt;
 	private Date updatedAt;
 
@@ -54,10 +54,10 @@ public class User implements java.io.Serializable {
 		this.email = getDataNotNull("email", data, "");
 		this.password = getDataNotNull("password", data, "");
 		this.homeAddress = getDataNotNull("homeAddress", data, "");
-		this.phoneNumber = Integer.parseInt(getDataNotNull("phoneNumber", data, "0"));
+		this.phoneNumber = getDataNotNull("phoneNumber", data, "");
 		this.ecFirstName = getDataNotNull("ecFirstName", data, "");
 		this.ecLastName = getDataNotNull("ecLastName", data, "");
-		this.ecPhoneNumber = Integer.parseInt(getDataNotNull("ecPhoneNumber", data, "0"));
+		this.ecPhoneNumber = getDataNotNull("ecPhoneNumber", data, "0");
 		this.createdAt = Calendar.getInstance().getTime();
 		this.updatedAt = Calendar.getInstance().getTime();
 		this.setIsActive(false);
@@ -161,11 +161,11 @@ public class User implements java.io.Serializable {
 	}
 
 	@Column(name = "phoneNumber")
-	public Integer getPhoneNumber() {
+	public String getPhoneNumber() {
 		return phoneNumber;
 	}
 
-	public void setPhoneNumber(Integer phoneNumber) {
+	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
 
@@ -188,11 +188,11 @@ public class User implements java.io.Serializable {
 	}
 
 	@Column(name = "ecPhoneNumber")
-	public Integer getEcPhoneNumber() {
+	public String getEcPhoneNumber() {
 		return ecPhoneNumber;
 	}
 
-	public void setEcPhoneNumber(Integer ecPhoneNumber) {
+	public void setEcPhoneNumber(String ecPhoneNumber) {
 		this.ecPhoneNumber = ecPhoneNumber;
 	}
 
