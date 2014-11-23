@@ -202,11 +202,12 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
-	public String logout(HttpServletResponse response) {
+	public String logout(HttpServletResponse response, ModelMap model) {
 		try {
 			Cookie cookie = new Cookie("ssId", null);
 			cookie.setMaxAge(0);
 			response.addCookie(cookie);
+			model.put("msg", "Log out OK");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
